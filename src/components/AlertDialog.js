@@ -1,12 +1,7 @@
 import { useState } from 'react';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from '@mui/material';
 
-export function AlertDialog() {
+export function AlertDialog(props) {
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
@@ -17,6 +12,10 @@ export function AlertDialog() {
     setOpen(false);
   };
 
+  const handleClearForm = () => {
+    props.clearForm()
+    handleClose()
+  }
   return (
     <div>
       <Button variant="outlined" size='large' color='error' onClick={handleClickOpen}>
@@ -38,7 +37,7 @@ export function AlertDialog() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Отмена</Button>
-          <Button onClick={() => {console.log('форма очищена')}} autoFocus> 
+          <Button onClick={handleClearForm} autoFocus> 
             Да
           </Button>
         </DialogActions>

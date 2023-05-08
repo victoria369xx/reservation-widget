@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {Container, Paper, FormGroup,FormControl, InputLabel, Select, MenuItem, Box, TextField, Button } from "@mui/material";
+import {Container, Paper, FormGroup,FormControl, FormHelperText, InputLabel, Select, MenuItem, Box, TextField, Button } from "@mui/material";
 import { AlertDialog } from "./AlertDialog";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs' 
@@ -17,7 +17,7 @@ dayjs.extend(timezone)
 const userTimeZone = () => {
  const guessedZone = dayjs.tz.guess()
  return String(guessedZone)
-} // моя Europe/Samara
+} 
 dayjs.tz.setDefault(userTimeZone())
 
 
@@ -54,16 +54,18 @@ export function ReservationForm () {
   const todayDate = getTodayDate()
   const timeNow = getTimeNow()
 
-    const [renderCheck, setRenderCheck] = useState(true) //default true
+    const [renderCheck, setRenderCheck] = useState(true) //default true because default date is today
     const [tower, setTower] = useState('');
     const [floor, setFloor] = useState('');
     const [room, setRoom] = useState('');
     const [date, setDate] = useState(dayjs.utc(todayDate));
     const [time, setTime] = useState(dayjs.utc(`${todayDate}T${timeNow}`));
+    const [duration, setDuration] = useState('');
     const [comment, setComment] = useState('');
 
     const floors = [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]
     const rooms = [1,2,3,4,5,6,7,8,9,10]
+    const durationRange = ['1 час', '2 часа', '4 часа','6 часов','8 часов']
 
   const isUserDateIsTodayCheck = () => { 
     const userInput = dayjs.utc(date)
@@ -99,6 +101,10 @@ export function ReservationForm () {
     setRoom(e.target.value)
   }
 
+  const handleChangeDuration = (e) => {
+      setDuration(e.target.value)
+  }
+
   const handleChangeComment = (e) => {
     setComment(e.target.value)
   }
@@ -112,6 +118,7 @@ export function ReservationForm () {
         room: room,
         date: date,
         time: time,
+        duration: duration,
         comment: comment
     } 
     const request = JSON.stringify(reservationInfo)
@@ -125,6 +132,7 @@ export function ReservationForm () {
     setRoom('');
     setDate(dayjs.utc(todayDate))
     setTime(dayjs.utc(`${todayDate}T${timeNow}`));
+    setDuration('');
     setComment('');
   }
 
@@ -133,7 +141,7 @@ export function ReservationForm () {
             <Paper sx={{padding:2}}> 
                     <form onSubmit={handleSubmit}> 
                     <FormGroup>
-                        <FormControl>
+                        <FormControl required>
                         <InputLabel id="Tower">Башня</InputLabel>
                         <Select
                             labelId="Tower"
@@ -143,15 +151,16 @@ export function ReservationForm () {
                         >
                             <MenuItem value={"А"}>А</MenuItem>
                             <MenuItem value={"Б"}>Б</MenuItem>
-                        </Select>
+                        </Select> 
+                        <FormHelperText> Обязательное поле </FormHelperText>
                         </FormControl>
 
-                        <FormControl sx={{marginTop:2}}>
+                        <FormControl required sx={{marginTop:2}}>
                         <InputLabel id="Floor">Этаж</InputLabel>
                         <Select
                             labelId="Floor"
                             value={floor}
-                            label="Этаж"
+                            label="Этаж *"
                             onChange={handleChangeFloor}
                         >
                             {
@@ -160,15 +169,16 @@ export function ReservationForm () {
                                 })
                             }
                             
-                        </Select>
+                        </Select> 
+                        <FormHelperText> Обязательное поле </FormHelperText>
                         </FormControl> 
 
-                        <FormControl sx={{marginTop:2}}>
+                        <FormControl required sx={{marginTop:2}}>
                         <InputLabel id="Room">Комната</InputLabel>
                         <Select
                             labelId="Room"
                             value={room}
-                            label="Комната"
+                            label="Комната *"
                             onChange={handleChangeRoom}
                         >
                             {
@@ -177,22 +187,42 @@ export function ReservationForm () {
                                 })
                             }
                             
-                        </Select>
+                        </Select> 
+                        <FormHelperText> Обязательное поле </FormHelperText>
                         </FormControl>
 
                         <Box sx={{display:"flex", justifyContent:"space-around"}}>
                             <ThemeProvider theme={theme}>
                             <LocalizationProvider dateAdapter={AdapterDayjs} dateLibInstance={dayjs.utc} adapterLocale="ru">
-                                <DatePicker sx={{marginTop:2}}  minDate={dayjs.utc(todayDate)} maxDate={dayjs.utc('2024-01-01')} value={date} onChange={(newValue) => setDate(newValue)}/> 
+                                <DatePicker sx={{marginTop:2}} label="Выберите дату *"  minDate={dayjs.utc(todayDate)} maxDate={dayjs.utc('2024-01-01')} value={date} onChange={(newValue) => setDate(newValue)}/> 
                                 {
-                                  renderCheck ? <TimePicker sx={{marginTop:2}}  label="Выберите время" value={time} minTime={dayjs.utc(`${todayDate}T${timeNow}`)} onChange={(newValue) => setTime(newValue)} /> :
-                                  <TimePicker sx={{marginTop:2}}  label="Выберите время" value={time} onChange={(newValue) => setTime(newValue)} />
+                                  renderCheck ? <TimePicker sx={{marginTop:2}}  label="Время начала аренды *" value={time} minTime={dayjs.utc(`${todayDate}T${timeNow}`)} onChange={(newValue) => setTime(newValue)} /> :
+                                  <TimePicker sx={{marginTop:2}}  label="Время начала аренды *" value={time} onChange={(newValue) => setTime(newValue)} />
 
                                 }
                                 
                                 </LocalizationProvider>
-                            </ThemeProvider>
-                        </Box>
+                            </ThemeProvider> 
+                        </Box>  
+
+                        <FormControl required sx={{marginTop:2}}>
+                        <InputLabel id="Duration">Длительность аренды</InputLabel>
+                        <Select
+                            labelId="Duration"
+                            value={duration}
+                            label="Длительность аренды *"
+                            onChange={handleChangeDuration}
+                        >
+                            {
+                                durationRange?.map((el,index)=>{
+                                    return <MenuItem value={el} key={index}>{el}</MenuItem>
+                                })
+                            }
+                            
+                        </Select> 
+                        <FormHelperText> Обязательное поле </FormHelperText>
+                        </FormControl> 
+                        
 
                         <TextField
                         label="Пожелания по аренде"
@@ -204,7 +234,7 @@ export function ReservationForm () {
                         sx={{marginTop:2}} /> 
 
                         <Box sx={{display:"flex", justifyContent:"space-around", marginTop:2, marginBottom:4}}>
-                            <AlertDialog/>
+                            <AlertDialog clearForm={clearForm}/>
                             <Button variant="contained" size="large" type="submit">Отправить</Button>
                         </Box>
                         </FormGroup>
