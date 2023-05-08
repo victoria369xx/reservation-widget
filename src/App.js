@@ -1,8 +1,10 @@
-import { ReservationForm } from "./components/ReservationForm";
+import {ReservationForm} from './components/ReservationForm/ReservationForm';
 
 function App() {
   return (
-      <ReservationForm/>  
+      <>
+      <ReservationForm/>
+      </>
   );
 }
 

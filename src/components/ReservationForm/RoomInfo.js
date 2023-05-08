@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import {Container, Paper, FormGroup,FormControl, FormHelperText, InputLabel, Select, MenuItem, Box, TextField, Button } from "@mui/material";
-import { AlertDialog } from "./ReservationForm/AlertDialog";
+import {FormGroup,FormControl, FormHelperText, InputLabel, Select, MenuItem, Box, TextField, Button } from "@mui/material";
+import { AlertDialog } from "./AlertDialog";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs' 
 import dayjs from 'dayjs';
@@ -32,7 +32,7 @@ const theme = createTheme(
   );
   
 
-export function ReservationForm () {
+export function RoomInfo () {
 
   const now = dayjs.tz() 
   const getTodayDate = () => {
@@ -137,8 +137,6 @@ export function ReservationForm () {
   }
 
     return (
-        <Container maxWidth="sm" sx={{marginTop:4}}>
-            <Paper sx={{padding:2}}> 
                     <form onSubmit={handleSubmit}> 
                     <FormGroup>
                         <FormControl required>
@@ -240,8 +238,5 @@ export function ReservationForm () {
                         </FormGroup>
                     </form>
 
-                    
-            </Paper>
-        </Container>
     )
 }
