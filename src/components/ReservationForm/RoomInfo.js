@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {FormGroup,FormControl, FormHelperText, InputLabel, Select, MenuItem, Box, TextField, Button } from "@mui/material";
+import {FormGroup,FormControl, FormHelperText, InputLabel, Select, MenuItem, Box, TextField, Button, Typography} from "@mui/material";
 import { AlertDialog } from "./AlertDialog";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs' 
@@ -32,7 +32,7 @@ const theme = createTheme(
   );
   
 
-export function RoomInfo () {
+export function RoomInfo (props) {
 
   const now = dayjs.tz() 
   const getTodayDate = () => {
@@ -51,17 +51,20 @@ export function RoomInfo () {
     return `${todayHour}:${todayMinute}`
   }
 
-  const todayDate = getTodayDate()
-  const timeNow = getTimeNow()
 
-    const [renderCheck, setRenderCheck] = useState(true) //default true because default date is today
-    const [tower, setTower] = useState('');
-    const [floor, setFloor] = useState('');
-    const [room, setRoom] = useState('');
-    const [date, setDate] = useState(dayjs.utc(todayDate));
-    const [time, setTime] = useState(dayjs.utc(`${todayDate}T${timeNow}`));
-    const [duration, setDuration] = useState('');
-    const [comment, setComment] = useState('');
+  const todayDate = getTodayDate()
+  const timeNow = getTimeNow() 
+  console.log(timeNow)
+
+    const dataFromLS = JSON.parse(localStorage.getItem('roomInfo'));
+    const [renderCheck, setRenderCheck] = useState('')
+    const [tower, setTower] = useState(dataFromLS?.tower || '');
+    const [floor, setFloor] = useState(dataFromLS?.floor || '');
+    const [room, setRoom] = useState(dataFromLS?.room || '');
+    const [date, setDate] = useState(dayjs.utc(dataFromLS?.date) || dayjs.utc(todayDate));
+    const [time, setTime] = useState(dayjs.utc(dataFromLS?.time) || dayjs.utc(`${todayDate}T${timeNow}`));
+    const [duration, setDuration] = useState(dataFromLS?.duration || '');
+    const [comment, setComment] = useState(dataFromLS?.comment || '');
 
     const floors = [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]
     const rooms = [1,2,3,4,5,6,7,8,9,10]
@@ -83,10 +86,13 @@ export function RoomInfo () {
       }
   } 
 
+  useEffect(()=> {
+    isUserDateIsTodayCheck()
+  },[date])
 
-   useEffect(()=> {
-      isUserDateIsTodayCheck()
-    },[date])
+  useEffect(()=> {
+    props.setDisabled(true)
+  }, [])
 
 
   const handleChangeTower = (e) => {
@@ -109,10 +115,8 @@ export function RoomInfo () {
     setComment(e.target.value)
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const reservationInfo = {
-        id: Math.random(),
+  const saveDataToLS = () => {
+    const roomInfo = {
         tower: tower,
         floor: floor,
         room: room,
@@ -121,10 +125,14 @@ export function RoomInfo () {
         duration: duration,
         comment: comment
     } 
-    const request = JSON.stringify(reservationInfo)
-    console.log(request)
-    clearForm()
+    localStorage.setItem('roomInfo', JSON.stringify(roomInfo));
   } 
+
+  const handleSubmitForm = (e) => {
+    e.preventDefault();
+    saveDataToLS();
+    props.setDisabled(false);
+  }
 
   const clearForm = () => {
     setTower('');
@@ -133,11 +141,16 @@ export function RoomInfo () {
     setDate(dayjs.utc(todayDate))
     setTime(dayjs.utc(`${todayDate}T${timeNow}`));
     setDuration('');
-    setComment('');
+    setComment(''); 
+    localStorage.removeItem('roomInfo');
   }
 
-    return (
-                    <form onSubmit={handleSubmit}> 
+    return (         <>
+                    <Typography variant="h6" gutterBottom>
+                         Выберите переговорную
+                    </Typography>
+                    <p><b>Внимание.</b> Нажмите кнопку "Сохранить", чтобы перейти к следующему шагу.</p>
+                    <form onSubmit={handleSubmitForm}> 
                     <FormGroup>
                         <FormControl required>
                         <InputLabel id="Tower">Башня</InputLabel>
@@ -146,6 +159,7 @@ export function RoomInfo () {
                             value={tower}
                             label="Башня *"
                             onChange={handleChangeTower}
+                            autoFocus
                         >
                             <MenuItem value={"А"}>А</MenuItem>
                             <MenuItem value={"Б"}>Б</MenuItem>
@@ -231,12 +245,13 @@ export function RoomInfo () {
                         onChange={handleChangeComment}
                         sx={{marginTop:2}} /> 
 
-                        <Box sx={{display:"flex", justifyContent:"space-around", marginTop:2, marginBottom:4}}>
+                            <Box sx={{marginTop:2, marginBottom:2, display:'flex', justifyContent:'space-between'}}>
                             <AlertDialog clearForm={clearForm}/>
-                            <Button variant="contained" size="large" type="submit">Отправить</Button>
-                        </Box>
+                            <Button type='submit' variant='outlined' size='large'>Сохранить</Button>
+                           </Box>
                         </FormGroup>
                     </form>
+                    </>
 
     )
 }

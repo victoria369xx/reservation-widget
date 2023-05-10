@@ -5,35 +5,45 @@ import { ClientInfo } from './ClientInfo';
 import { RoomInfo } from './RoomInfo';
 import { Additionals } from './Additionals';
 
+const theme = createTheme();
 
 
-const steps = ['Контактная информация', 'Выберите переговорную', 'Выберите услуги'];
+export function ReservationForm () { 
+const steps = ['Контактная информация', 'Выберите переговорную', 'Выберите услуги']; 
+const [activeStep, setActiveStep] = useState(0);
+const [disabled, setDisabled] = useState(true);
+
+const handleNext = () => {
+  setActiveStep(activeStep + 1);
+};
+
+const handleBack = () => {
+  setActiveStep(activeStep - 1);
+  setDisabled(true);
+};
+
 
 function getStepContent(step) {
   switch (step) {
     case 0:
-      return <ClientInfo />;
+      return <ClientInfo setDisabled={setDisabled}/>;
     case 1:
-      return <RoomInfo />;
+      return <RoomInfo setDisabled={setDisabled}/>;
     case 2:
-      return <Additionals/>;
+      return <Additionals setDisabled={setDisabled}/>;
     default:
       throw new Error('Unknown step');
   }
 }
 
-const theme = createTheme();
+  const handleFormSend = () => {
+    handleNext();
+    console.log(localStorage.getItem('clientInfo'), localStorage.getItem('roomInfo'), localStorage.getItem('additionalsInfo'));
+    localStorage.removeItem('clientInfo');
+    localStorage.removeItem('roomInfo');
+    localStorage.removeItem('additionalsInfo');
+  }
 
-export function ReservationForm () {
-  const [activeStep, setActiveStep] = useState(0);
-
-  const handleNext = () => {
-    setActiveStep(activeStep + 1);
-  };
-
-  const handleBack = () => {
-    setActiveStep(activeStep - 1);
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -70,13 +80,11 @@ export function ReservationForm () {
                   </Button>
                 )}
 
-                <Button
-                  variant="contained"
-                  onClick={handleNext}
-                  sx={{ mt: 3, ml: 1 }}
-                >
-                  {activeStep === steps.length - 1 ? 'Отправить' : 'Далее'}
-                </Button>
+                {
+                  activeStep === steps.length - 1 ? <Button variant="contained" disabled={disabled} onClick={handleFormSend} sx={{ mt: 3, ml: 1 }}> Отправить </Button> :  
+                  <Button variant="contained" disabled={disabled} onClick={handleNext}  sx={{ mt: 3, ml: 1 }}> Далее </Button>
+                }
+               
               </Box>
             </>
           )}
