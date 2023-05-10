@@ -53,9 +53,9 @@ function getStepContent(step) {
           <Typography component="h1" variant="h4" align="center">
             Бронирование переговорной
           </Typography>
-          <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
+          <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5, display:'flex', flexWrap:'wrap' }}>
             {steps.map((label) => (
-              <Step key={label}>
+              <Step key={label} sx={{mb:1}}>
                 <StepLabel>{label}</StepLabel>
               </Step>
             ))}
